@@ -4,9 +4,17 @@
 [![Total Downloads](https://poser.pugx.org/pluf/scion/downloads)](https://packagist.org/packages/pluf/scion)
 [![License](https://poser.pugx.org/pluf/scion/license)](https://packagist.org/packages/pluf/scion)
 
-A processing model to implement nonbloking HTTP server
+A processing model to implement nonbloking server
+
+It is verey common in HTTP
+
+It merges Middlewares and View 
 
 ## Concepts
+
+- Process
+- Unit
+- Dataflow
 
 ### Process
 
@@ -14,15 +22,22 @@ Process is a php function
 
 ### Unit
 
-Unit is a list of process
+Unit is a list of process.
+
+An unit add a login and flow to process.
+
+Default flow is sequensial, so, all process executed sequensially.
+
 
 #### Labeled process
 
-You may label a process for an special job.
+You may label a process for an special goal.
 
-Supported label:
+Build in label:
 
-- condition
+- condition: jumbs to the end of unit if the return value is false.
+
+Note: condition processes are not joined to the data flow, but handnle flows.
 
 ### Dataflow
 
