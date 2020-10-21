@@ -1,5 +1,8 @@
 # scion
 
+
+[![License](https://poser.pugx.org/pluf/scion/license)](https://packagist.org/packages/pluf/scion)
+
 A processing model to implement nonbloking HTTP server
 
 ## Concepts
