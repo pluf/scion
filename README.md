@@ -63,14 +63,14 @@ The resullt will be:
 
 Learn more at these links:
 
-- (Website)[https://pluf.ir/products/scion]
-- (Documentation)[https://pluf.ir/products/scion-document]
-- (Resources)[https://pluf.ir/products/scion-Resources]
+- [Website](https://pluf.ir/products/scion)
+- [Documentation](https://pluf.ir/products/scion-document)
+- [Resources](https://pluf.ir/products/scion-Resources)
 
 
 ## Contributors
 
-Please see CONTRIBUTING for details.
+Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 
 ### Code Contributors
