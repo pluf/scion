@@ -1,6 +1,8 @@
 # scion
 
 
+[![Build Status](https://travis-ci.org/pluf/Slim.svg?branch=4.x)](https://travis-ci.org/slimphp/Slim)
+[![Total Downloads](https://poser.pugx.org/pluf/scion/downloads)](https://packagist.org/packages/pluf/scion)
 [![License](https://poser.pugx.org/pluf/scion/license)](https://packagist.org/packages/pluf/scion)
 
 A processing model to implement nonbloking HTTP server
