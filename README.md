@@ -1,7 +1,6 @@
 # scion
 
-
-[![Build Status](https://travis-ci.org/pluf/Slim.svg?branch=4.x)](https://travis-ci.org/slimphp/Slim)
+[![Build Status](https://travis-ci.com/pluf/scion.svg?branch=master)](https://travis-ci.com/pluf/scion)
 [![Total Downloads](https://poser.pugx.org/pluf/scion/downloads)](https://packagist.org/packages/pluf/scion)
 [![License](https://poser.pugx.org/pluf/scion/license)](https://packagist.org/packages/pluf/scion)
 
