@@ -1,0 +1,43 @@
+{
+	"name" : "pluf/scion",
+	"description" : "Nonblocking model to implement HTTP server",
+	"type" : "library",
+	"homepage" : "https://pluf.ir",
+	"license" : "AGPL-3.0",
+	"authors" : [{
+			"name" : "Mostafa Barmshory",
+			"email" : "mostafa.barmshory@gmail.com"
+		}
+	],
+	"support" : {
+		"email" : "info@pluf.ir",
+		"issues" : "https://github.com/pluf/scion",
+		"forum" : "https://github.com/pluf/scion",
+		"wiki" : "https://github.com/pluf/scion",
+		"irc" : "https://github.com/pluf/scion",
+		"source" : "https://github.com/pluf/scion"
+	},
+	"autoload" : {
+		"psr-4" : {
+			"Pluf\\Scion\\" : "src"
+		}
+	},
+	"autoload-dev" : {
+		"psr-4" : {
+			"Pluf\\Tests\\" : "tests"
+		}
+	},
+	"keywords" : [
+		"pluf",
+		"http",
+		"REST"
+	],
+	"require" : {
+		"pluf/di" : "^7.0",
+		"psr/http-server-handler" : "~1.0",
+		"psr/http-server-middleware" : "~1.0"
+	},
+	"require-dev" : {
+		"phpunit/phpunit" : "^9"
+	}
+}
