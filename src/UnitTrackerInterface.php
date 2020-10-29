@@ -3,7 +3,7 @@ namespace Pluf\Scion;
 
 use Pluf\Di\Container;
 
-interface ProcessTrackerInterface
+interface UnitTrackerInterface
 {
 
     /**
@@ -20,8 +20,8 @@ interface ProcessTrackerInterface
      * latest on.
      *
      * @param Container $container
-     * @return ProcessTrackerInterface
+     * @return UnitTrackerInterface
      */
-    public function setLastContainer(Container $container): ProcessTrackerInterface;
+    public function setLastContainer(Container $container): UnitTrackerInterface;
 }
 

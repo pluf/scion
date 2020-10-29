@@ -1,14 +1,14 @@
 <?php
 namespace Pluf\Tests\Processes;
 
-use Pluf\Scion\ProcessTrackerInterface;
+use Pluf\Scion\UnitTracker;
 
 class Pipe
 {
 
-    public function __invoke(ProcessTrackerInterface $processTracker)
+    public function __invoke(UnitTracker $unitTracker)
     {
-        return $processTracker->next();
+        return $unitTracker->next();
     }
 }
 

@@ -117,8 +117,8 @@ class UnitTrackerTest extends TestCase
     {
         $ut = new UnitTracker([ // unit list
             [ // first unit
-                function ($processTracker) {
-                    return $processTracker->next([
+                function ($unitTracker) {
+                    return $unitTracker->next([
                         'a' => 1,
                         'b' => 1
                     ]);
@@ -143,8 +143,8 @@ class UnitTrackerTest extends TestCase
     {
         $ut = new UnitTracker([
             [
-                function ($processTracker) {
-                    return 2 * $processTracker->next();
+                function ($unitTracker) {
+                    return 2 * $unitTracker->next();
                 },
                 function ($a, int $b = 1) {
                     return $a + $b;
@@ -168,8 +168,8 @@ class UnitTrackerTest extends TestCase
     {
         $ut = new UnitTracker([
             [
-                function ($processTracker) {
-                    return 2 * $processTracker->next();
+                function ($unitTracker) {
+                    return 2 * $unitTracker->next();
                 }
             ],
             [
@@ -231,7 +231,7 @@ class UnitTrackerTest extends TestCase
                 }
             ],
             [
-                'condition' => function () {
+                function () {
                     return false;
                 },
                 function () {
@@ -239,7 +239,7 @@ class UnitTrackerTest extends TestCase
                 }
             ]
         ]);
-        $this->assertNull($ut->doProcess());
+        $this->assertFalse($ut->doProcess());
     }
 
     /**
@@ -258,5 +258,79 @@ class UnitTrackerTest extends TestCase
             ]
         ]);
         $ut->doProcess();
+    }
+
+    /**
+     *
+     * @test
+     */
+    public function useInvokableAndUnit()
+    {
+        $ut = new UnitTracker([
+            new MathCrossResult(2),
+            new MathAddABDeadend()
+        ]);
+
+        $this->assertEquals(4, $ut->doProcess([
+            'a' => 1
+        ]), 'The sum process not work');
+    }
+
+    /**
+     *
+     * @test
+     */
+    public function useInvokableAndUnitNested()
+    {
+        $ut = new UnitTracker([
+            [
+                [
+                    [
+                        [
+                            [
+                                new MathCrossResult(2)
+                            ]
+                        ]
+                    ]
+                ],
+                new MathAddABDeadend()
+            ]
+        ]);
+
+        $this->assertEquals(4, $ut->doProcess([
+            'a' => 1
+        ]), 'The sum process not work');
+    }
+
+    /**
+     *
+     * @test
+     */
+    public function invokeRegisterdProcess()
+    {
+        $container = new Container();
+        // constant
+        $container['cross'] = Container::value([
+            [
+                [
+                    [
+                        new MathCrossResult(2)
+                    ]
+                ]
+            ]
+        ]);
+        // factory
+        $container['add'] = function () {
+            return new MathAddABDeadend();
+        };
+
+        $ut = new UnitTracker([
+            'cross',
+            'add'
+        ], $container);
+
+        $this->assertEquals(4, $ut->doProcess([
+            'a' => 1
+        ]), 'The sum process not work');
     }
 }

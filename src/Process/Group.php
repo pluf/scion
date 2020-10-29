@@ -1,11 +1,11 @@
 <?php
 namespace Pluf\Scion\Process;
 
+use Pluf\Di\Container;
 use Pluf\Scion\UnitTracker;
 use Pluf\Scion\Exceptions\ImposibleToLoadUnits;
 use InvalidArgumentException;
-use Pluf\Scion\ProcessTrackerInterface;
-use Pluf\Di\Container;
+use Pluf\Scion\UnitTrackerInterface;
 
 /**
  * Imports list of units and run with a new UnitTracker.
@@ -45,23 +45,20 @@ class Group
     /**
      * Loads units and runs them
      *
-     * @param ProcessTrackerInterface $processChain
+     * @param UnitTrackerInterface $unitTracker
      * @param Container $container
      * @return void|mixed
      */
-    public function __invoke(ProcessTrackerInterface $processTracker, Container $container)
+    public function __invoke(UnitTrackerInterface $unitTracker, Container $container)
     {
-        $lastUnits = [
-            [
-                function (Container $container) use (&$processTracker) {
-                    $processTracker->setLastContainer($container);
-                    return $processTracker->next();
-                }
-            ]
-        ];
-        $units = array_merge($this->loadUnits(), $lastUnits);
-        $unitTracker = new UnitTracker($units, $container);
-        return $unitTracker->doProcess();
+        $units = array_merge($this->loadUnits(), [
+            function (Container $container) use (&$unitTracker) {
+                $unitTracker->setLastContainer($container);
+                return $unitTracker->next();
+            }
+        ]);
+        $unitTrackerInternall = new UnitTracker($units, $container);
+        return $unitTrackerInternall->doProcess();
     }
 }
 

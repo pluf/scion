@@ -1,7 +1,7 @@
 <?php
 namespace Pluf\Tests\Processes;
 
-use Pluf\Scion\ProcessTracker;
+use Pluf\Scion\UnitTracker;
 
 class MathCrossResult
 {
@@ -13,9 +13,9 @@ class MathCrossResult
         $this->time = $times;
     }
 
-    public function __invoke(ProcessTracker $processTracker)
+    public function __invoke(UnitTracker $unitTracker)
     {
-        return $this->time * $processTracker->next();
+        return $this->time * $unitTracker->next();
     }
 }
 

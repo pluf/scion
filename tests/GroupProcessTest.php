@@ -91,16 +91,10 @@ class GroupProcessTest extends TestCase
     public function simpleGroupChainUnits2Test()
     {
         $ut = new UnitTracker([
-            [
-                new Process\Group([
-                    [
-                        new MathCrossResult(2)
-                    ]
-                ])
-            ],
-            [
-                new MathAddABDeadend()
-            ]
+            new Process\Group([
+                new MathCrossResult(2)
+            ]),
+            new MathAddABDeadend()
         ]);
 
         $this->assertEquals(4, $ut->doProcess([
@@ -122,9 +116,7 @@ class GroupProcessTest extends TestCase
             [
                 new Pipe(),
                 new Process\Group([
-                    [
-                        new Pipe()
-                    ]
+                    new Pipe()
                 ])
             ],
             [
