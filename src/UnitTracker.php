@@ -7,7 +7,6 @@ use Pluf\Di\ParameterResolver\DefaultValueResolver;
 use Pluf\Di\ParameterResolver\ResolverChain;
 use Pluf\Di\ParameterResolver\Container\ParameterNameContainerResolver;
 use Pluf\Scion\Exceptions\UnitTrackerIsBusyException;
-use Pluf\Scion\Process\UnitChain;
 use Psr\Container\ContainerInterface;
 use ArrayIterator;
 
@@ -40,14 +39,17 @@ class UnitTracker implements UnitTrackerInterface
 
     private bool $busy = false;
 
+    private ?UnitTrackerInterface $parent;
+
     /**
      * Creates new instance of UnitTracker
      *
      * @param array $units
      * @param ContainerInterface $container
      */
-    function __construct(array $units = [], ContainerInterface $container = null)
+    function __construct(array $units = [], ContainerInterface $container = null, UnitTrackerInterface $parent = null)
     {
+        $this->parent = $parent;
         if (! isset($container) || ! ($container instanceof Container)) {
             $container = new Container();
         }
@@ -109,8 +111,9 @@ class UnitTracker implements UnitTrackerInterface
         // check if ends
         if (! ($nextUnit = $this->findNextUnit())) {
             // This is the final unit and the tracker is restart
-            $this->lastContainer = new Container($this->rootContainer);
-            $this->loadUnits($this->originUnits);
+            if (isset($this->parent)) {
+                return $this->parent->next($resolves);
+            }
             return;
         }
 
@@ -122,11 +125,13 @@ class UnitTracker implements UnitTrackerInterface
 
         // call next unit
         if (is_string($nextUnit)) {
-            $invokable = $container[$nextUnit];
-            if (! isset($invokable) && ! is_array($invokable)) {
-                throw new \Exception('Registered unit is not invokable nor array.');
+            // if is invokable class
+            if (class_exists($nextUnit, true) && method_exists($nextUnit, '__invoke')) {
+                $nextUnit = new $nextUnit();
+            } else {
+                // if is a service
+                $nextUnit = $container[$nextUnit];
             }
-            $nextUnit = $invokable;
         }
         if (is_callable($nextUnit)) {
             $invoker = new Invoker(new ResolverChain([
@@ -135,12 +140,22 @@ class UnitTracker implements UnitTrackerInterface
             ]));
             return $invoker->call($nextUnit);
         } else if (is_array($nextUnit)) {
-            $unitTracker = new UnitTracker(array_merge($nextUnit, [
-                new UnitChain($this)
-            ]), $container);
+            $unitTracker = new UnitTracker($nextUnit, $container, $this);
             return $unitTracker->doProcess();
         }
         throw Exception('unsupported unit type');
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     * @see \Pluf\Scion\UnitTrackerInterface::jump()
+     */
+    public function jump(array $resolve = [], string $label = 'end')
+    {
+        if ($label != 'end') {
+            throw new \Exception('Labeled process is not supported.');
+        }
     }
 }
 
