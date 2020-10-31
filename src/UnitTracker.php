@@ -98,7 +98,7 @@ class UnitTracker implements UnitTrackerInterface
             $this->loadUnits($this->originUnits);
             $resolves['unitTracker'] = $this;
             return $this->next($resolves);
-        } finally{
+        } finally {
             $this->busy = false;
         }
     }
@@ -156,6 +156,11 @@ class UnitTracker implements UnitTrackerInterface
         if ($label != 'end') {
             throw new \Exception('Labeled process is not supported.');
         }
+        if(!isset($this->parent)){
+            // end of main unit
+            return;
+        }
+        return $this->parent->next();
     }
 }
 
