@@ -21,12 +21,15 @@ use ArrayIterator;
  * @author Mostafa Barmshory <mostafa.barmshory@gmail.com>
  *        
  */
-class UnitTracker extends AbstractTracker
+class UnitTracker implements UnitTrackerInterface
 {
 
-    private int $unitPointer = 0;
-
-    private ?ProcessTracker $lastProcessTracker;
+    /**
+     * The root container
+     *
+     * @var ContainerInterface
+     */
+    private Container $rootContainer;
 
     private Container $lastContainer;
 
@@ -34,9 +37,9 @@ class UnitTracker extends AbstractTracker
 
     private ArrayIterator $unitsIterator;
 
-    private bool $nextCalled = false;
-
     private bool $busy = false;
+
+    private ?UnitTrackerInterface $parent;
 
     /**
      * Creates new instance of UnitTracker
@@ -44,13 +47,14 @@ class UnitTracker extends AbstractTracker
      * @param array $units
      * @param ContainerInterface $container
      */
-    function __construct(array $units = [], ContainerInterface $container = null)
+    function __construct(array $units = [], ContainerInterface $container = null, UnitTrackerInterface $parent = null)
     {
-        parent::__construct($container);
+        $this->parent = $parent;
+        if (! isset($container) || ! ($container instanceof Container)) {
+            $container = new Container();
+        }
+        $this->rootContainer = $container;
         $this->originUnits = $units;
-        $this->lastContainer = new Container($this->rootContainer);
-
-        $this->loadUnits($units);
     }
 
     /**
@@ -61,32 +65,25 @@ class UnitTracker extends AbstractTracker
     public function loadUnits(array $units = [])
     {
         $this->unitsIterator = new ArrayIterator($units);
-        // $this->unitsIterator->rewind();
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     * @see \Pluf\Scion\UnitTrackerInterface::setLastContainer()
+     */
+    public function setLastContainer($container): UnitTrackerInterface
+    {
+        $this->lastContainer = $container;
+        return $this;
     }
 
     protected function findNextUnit()
     {
-        $invoker = new Invoker(new ResolverChain([
-            new ParameterNameContainerResolver($this->lastContainer),
-            new DefaultValueResolver()
-        ]));
-        while ($this->unitsIterator->valid()) {
+        if ($this->unitsIterator->valid()) {
             $unit = $this->unitsIterator->current();
             $this->unitsIterator->next();
-            $condition = true;
-            // condition
-            if (array_key_exists('condition', $unit)) {
-                $condition = $unit['condition'];
-                if (is_callable($condition)) {
-                    $condition = $invoker->call($condition);
-                }
-//             } else if (array_key_exists('regex', $unit)) {
-//                 // TODO: maso, 2020: support regex
-//                 throw new RuntimeException('REGEX not supported');
-            }
-            if ($condition) {
-                return $unit;
-            }
+            return $unit;
         }
     }
 
@@ -97,6 +94,9 @@ class UnitTracker extends AbstractTracker
         }
         try {
             $this->busy = true;
+            $this->lastContainer = new Container($this->rootContainer);
+            $this->loadUnits($this->originUnits);
+            $resolves['unitTracker'] = $this;
             return $this->next($resolves);
         } finally{
             $this->busy = false;
@@ -108,30 +108,54 @@ class UnitTracker extends AbstractTracker
      */
     public function next(array $resolves = [])
     {
-        $this->nextCalled = true;
         // check if ends
-        if (! $this->unitsIterator->valid() || ! ($nextUnit = $this->findNextUnit())) {
+        if (! ($nextUnit = $this->findNextUnit())) {
             // This is the final unit and the tracker is restart
-            $this->lastContainer = new Container($this->rootContainer);
-            $this->loadUnits($this->originUnits);
+            if (isset($this->parent)) {
+                return $this->parent->next($resolves);
+            }
             return;
         }
 
         // create new container
-        $this->lastContainer = new Container($this->lastContainer);
+        $this->lastContainer = $container = new Container($this->lastContainer);
         foreach ($resolves as $key => $value) {
             $this->lastContainer[$key] = Container::value($value);
         }
 
         // call next unit
-        $this->lastProcessTracker = new ProcessTracker($nextUnit, $this->lastContainer, $this);
-        $this->nextCalled = false;
-        $result = $this->lastProcessTracker->next();
-        if (! $this->nextCalled) {
-            $this->lastContainer = new Container($this->rootContainer);
-            $this->loadUnits($this->originUnits);
+        if (is_string($nextUnit)) {
+            // if is invokable class
+            if (class_exists($nextUnit, true) && method_exists($nextUnit, '__invoke')) {
+                $nextUnit = new $nextUnit();
+            } else {
+                // if is a service
+                $nextUnit = $container[$nextUnit];
+            }
         }
-        return $result;
+        if (is_callable($nextUnit)) {
+            $invoker = new Invoker(new ResolverChain([
+                new ParameterNameContainerResolver($container),
+                new DefaultValueResolver()
+            ]));
+            return $invoker->call($nextUnit);
+        } else if (is_array($nextUnit)) {
+            $unitTracker = new UnitTracker($nextUnit, $container, $this);
+            return $unitTracker->doProcess();
+        }
+        throw Exception('unsupported unit type');
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     * @see \Pluf\Scion\UnitTrackerInterface::jump()
+     */
+    public function jump(array $resolve = [], string $label = 'end')
+    {
+        if ($label != 'end') {
+            throw new \Exception('Labeled process is not supported.');
+        }
     }
 }
 
