@@ -14,7 +14,6 @@
 		"issues" : "https://github.com/pluf/scion",
 		"forum" : "https://github.com/pluf/scion",
 		"wiki" : "https://github.com/pluf/scion",
-		"irc" : "https://github.com/pluf/scion",
 		"source" : "https://github.com/pluf/scion"
 	},
 	"autoload" : {
