@@ -2,6 +2,7 @@
 namespace Pluf\Scion\Process;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Pluf\Scion\UnitTrackerInterface;
 
 class HttpProcess
 {
@@ -20,7 +21,7 @@ class HttpProcess
         $this->methods = $methods;
     }
 
-    public function __invoke(ServerRequestInterface $request, $unitTracker)
+    public function __invoke(ServerRequestInterface $request, UnitTrackerInterface $unitTracker)
     {
         $uri = $request->getUri();
         $requestPath = $uri->getPath();
