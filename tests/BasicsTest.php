@@ -2,7 +2,7 @@
 namespace Pluf\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Pluf\Scion\Process\HttpProcess;
+use Pluf\Scion\Process\Http\IfPathAndMethodIs;
 
 class BasicsTest extends TestCase
 {
@@ -13,7 +13,7 @@ class BasicsTest extends TestCase
      */
     public function checkCallabelClassName()
     {
-        $this->assertFalse(is_callable(HttpProcess::class));
+        $this->assertFalse(is_callable(IfPathAndMethodIs::class));
     }
 
     /**
@@ -22,7 +22,7 @@ class BasicsTest extends TestCase
      */
     public function checkCallabelClassByMethod()
     {
-        $this->assertTrue(method_exists(HttpProcess::class, '__invoke'));
+        $this->assertTrue(method_exists(IfPathAndMethodIs::class, '__invoke'));
     }
 }
 
