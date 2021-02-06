@@ -5,9 +5,9 @@ use PHPUnit\Framework\TestCase;
 use Pluf\Http\ResponseFactory;
 use Pluf\Http\ServerRequestFactory;
 use Pluf\Scion\UnitTrackerInterface;
-use Pluf\Scion\Process\Http\FileToHttpResponse;
+use Pluf\Scion\Process\Http\FileToResponse;
 
-class FileToHttpResponseTest extends TestCase
+class FileToResponseTest extends TestCase
 {
 
     public $requestFactory;
@@ -38,9 +38,10 @@ class FileToHttpResponseTest extends TestCase
 
         $request = $this->requestFactory->createServerRequest('GET', '/download/file');
         $response = $this->responseFactory->createResponse(500, 'no result');
-        $process = new FileToHttpResponse();
+        $process = new FileToResponse();
         $res = $process($request, $response, $processTracker);
         $this->assertNotNull($res);
     }
 }
+
 
