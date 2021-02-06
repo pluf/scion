@@ -7,3 +7,4 @@ composer.phar
 /.settings/
 /.build/
 /.phpunit.result.cache
+/phpunit.xml.bak
